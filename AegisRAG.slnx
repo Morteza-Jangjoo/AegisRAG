@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AegisRAG.Api/AegisRAG.Api.csproj" />
+    <Project Path="src/AegisRAG.Application/AegisRAG.Application.csproj" />
+    <Project Path="src/AegisRAG.Domain/AegisRAG.Domain.csproj" />
+    <Project Path="src/AegisRAG.Infrastructure/AegisRAG.Infrastructure.csproj" />
+    <Project Path="src/AegisRAG.Worker/AegisRAG.Worker.csproj" />
+  </Folder>
+</Solution>

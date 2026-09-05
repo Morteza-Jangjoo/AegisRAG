@@ -1,0 +1,6 @@
+@AegisRAG.Api_HostAddress = http://localhost:5280
+
+GET {{AegisRAG.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
