@@ -6,4 +6,7 @@
     <Project Path="src/AegisRAG.Infrastructure/AegisRAG.Infrastructure.csproj" />
     <Project Path="src/AegisRAG.Worker/AegisRAG.Worker.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AegisRAG.UnitTests/AegisRAG.UnitTests.csproj" />
+  </Folder>
 </Solution>
