@@ -1,3 +1,5 @@
+using Pgvector;
+
 namespace AegisRAG.Domain.Entities;
 
 public class DocumentChunk
@@ -30,4 +32,11 @@ public class DocumentChunk
     public int? PageNumber { get; private set; }
 
     public Document Document { get; private set; } = null!;
+
+    public Vector? Embedding { get; private set; }
+
+    public void SetEmbedding(float[] embedding)
+    {
+        Embedding = new Vector(embedding);
+    }
 }

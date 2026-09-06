@@ -3,6 +3,7 @@ using System;
 using AegisRAG.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pgvector;
@@ -12,9 +13,11 @@ using Pgvector;
 namespace AegisRAG.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AegisRagDbContext))]
-    partial class AegisRagDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260906093453_AddChunkEmbeddings")]
+    partial class AddChunkEmbeddings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

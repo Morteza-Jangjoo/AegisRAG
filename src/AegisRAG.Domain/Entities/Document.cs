@@ -66,13 +66,17 @@ public class Document
     public void AddChunk(
     string content,
     int chunkIndex,
-    int? pageNumber)
+    int? pageNumber,
+    float[]? embedding = null)
     {
         var chunk = new DocumentChunk(
             Id,
             content,
             chunkIndex,
             pageNumber);
+
+        if (embedding is not null)
+            chunk.SetEmbedding(embedding);
 
         _chunks.Add(chunk);
     }

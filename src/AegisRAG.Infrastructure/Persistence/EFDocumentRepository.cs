@@ -37,4 +37,14 @@ public sealed class EFDocumentRepository
                 x => x.Id == id,
                 cancellationToken);
     }
+
+    public async Task UpdateAsync(
+    Document document,
+    CancellationToken cancellationToken = default)
+    {
+        _dbContext.Documents.Update(document);
+
+        await _dbContext.SaveChangesAsync(
+            cancellationToken);
+    }
 }

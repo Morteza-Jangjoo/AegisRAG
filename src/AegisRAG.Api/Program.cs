@@ -20,7 +20,8 @@ builder.Services.AddInfrastructure(
     Path.Combine(
         builder.Environment.ContentRootPath,
         "storage"),
-    connectionString);
+    connectionString,
+    builder.Configuration);
 
 var app = builder.Build();
 

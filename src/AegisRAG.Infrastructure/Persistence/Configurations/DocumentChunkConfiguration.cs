@@ -1,6 +1,7 @@
 using AegisRAG.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Pgvector;
 
 namespace AegisRAG.Infrastructure.Persistence.Configurations;
 
@@ -28,5 +29,8 @@ public sealed class DocumentChunkConfiguration
             x.ChunkIndex
         })
         .IsUnique();
+
+        builder.Property(x => x.Embedding)
+            .HasColumnType("vector(768)");
     }
 }

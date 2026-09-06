@@ -41,6 +41,19 @@ public sealed class LocalFileStorage : IFileStorage
         return fullPath;
     }
 
+    public Task<Stream> OpenReadAsync(
+    string path,
+    CancellationToken cancellationToken = default)
+    {
+        Stream stream = new FileStream(
+            path,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.Read);
+
+        return Task.FromResult(stream);
+    }
+
     public Task DeleteAsync(
         string path,
         CancellationToken cancellationToken = default)

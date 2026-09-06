@@ -17,6 +17,8 @@ public class AegisRagDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresExtension("vector");
+
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(AegisRagDbContext).Assembly);
     }
