@@ -10,10 +10,17 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddApplication();
 
+var connectionString =
+    builder.Configuration.GetConnectionString(
+        "DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "Database connection string is missing.");
+
 builder.Services.AddInfrastructure(
     Path.Combine(
         builder.Environment.ContentRootPath,
-        "storage"));
+        "storage"),
+    connectionString);
 
 var app = builder.Build();
 
