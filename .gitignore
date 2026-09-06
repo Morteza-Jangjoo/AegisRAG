@@ -480,3 +480,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Personal documentation (not to be committed)
+docs/ImplementationDocument.docx
