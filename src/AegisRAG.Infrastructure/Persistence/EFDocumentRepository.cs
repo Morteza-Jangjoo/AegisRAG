@@ -42,7 +42,15 @@ public sealed class EFDocumentRepository
     Document document,
     CancellationToken cancellationToken = default)
     {
-        _dbContext.Documents.Update(document);
+        foreach (var chunk in document.Chunks)
+        {
+            if (_dbContext.Entry(chunk).State == EntityState.Detached)
+            {
+                _dbContext.DocumentChunks.Add(chunk);
+            }
+        }
+
+        _dbContext.Entry(document).State = EntityState.Modified;
 
         await _dbContext.SaveChangesAsync(
             cancellationToken);

@@ -1,6 +1,7 @@
 using AegisRAG.Application.Abstractions;
 using AegisRAG.Infrastructure.AI;
 using AegisRAG.Infrastructure.Documents;
+using AegisRAG.Infrastructure.Messaging;
 using AegisRAG.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -42,6 +43,13 @@ public static class DependencyInjection
             configuration.GetSection(
                 OllamaOptions.SectionName));
 
+        services.Configure<RabbitMqOptions>(
+            configuration.GetSection(
+                RabbitMqOptions.SectionName));
+
+        services.AddScoped<IMessagePublisher,
+            RabbitMqPublisher>();
+
         services.AddHttpClient<IEmbeddingService,
             OllamaEmbeddingService>((serviceProvider, client) =>
             {
@@ -57,6 +65,9 @@ public static class DependencyInjection
 
         services.AddScoped<IVectorSearchRepository,
             EFVectorSearchRepository>();
+
+
+
 
         return services;
     }
