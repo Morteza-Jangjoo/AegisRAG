@@ -63,6 +63,22 @@ public static class DependencyInjection
                     new Uri(options.BaseUrl);
             });
 
+        services.AddHttpClient<ILlmService,
+            OllamaLlmService>((serviceProvider, client) =>
+            {
+                var options =
+                    serviceProvider
+                        .GetRequiredService<
+                            IOptions<OllamaOptions>>()
+                        .Value;
+
+                client.BaseAddress =
+                    new Uri(options.BaseUrl);
+                
+                client.Timeout =
+                TimeSpan.FromMinutes(10);
+            });
+
         services.AddScoped<IVectorSearchRepository,
             EFVectorSearchRepository>();
 

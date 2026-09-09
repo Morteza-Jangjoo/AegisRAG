@@ -9,4 +9,7 @@ public sealed class OllamaOptions
 
     public string EmbeddingModel { get; set; } =
         "nomic-embed-text";
+    
+    public string LlmModel { get; set; } = 
+        "phi3:mini";
 }

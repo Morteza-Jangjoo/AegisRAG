@@ -30,13 +30,14 @@ public sealed class EFVectorSearchRepository
                 x.Embedding!.CosineDistance(queryVector))
             .Take(topK)
             .Select(x => new SimilarChunkDto(
-                x.Id,
-                x.DocumentId,
-                x.Content,
-                x.ChunkIndex,
-                x.PageNumber,
-                1 - x.Embedding!
-                    .CosineDistance(queryVector)))
+            x.Id,
+            x.DocumentId,
+            x.Document.FileName,
+            x.Content,
+            x.ChunkIndex,
+            x.PageNumber,
+            1 - x.Embedding!
+                .CosineDistance(queryVector)))
             .ToListAsync(cancellationToken);
 
         return results;

@@ -1,5 +1,6 @@
 using AegisRAG.Application.Documents.Process;
 using AegisRAG.Application.Documents.Upload;
+using AegisRAG.Application.RAG.Chat;
 using AegisRAG.Application.RAG.Search;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +16,8 @@ public static class DependencyInjection
         services.AddScoped<ProcessDocumentHandler>();
 
         services.AddScoped<SemanticSearchHandler>();
+        
+        services.AddScoped<RagQueryHandler>();
 
         return services;
     }
