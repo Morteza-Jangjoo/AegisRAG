@@ -1,3 +1,4 @@
+using AegisRAG.Application.Documents.GetStatus;
 using AegisRAG.Application.Documents.Process;
 using AegisRAG.Application.Documents.Upload;
 using AegisRAG.Application.RAG.Chat;
@@ -18,6 +19,8 @@ public static class DependencyInjection
         services.AddScoped<SemanticSearchHandler>();
         
         services.AddScoped<RagQueryHandler>();
+
+        services.AddScoped<GetDocumentStatusHandler>();
 
         return services;
     }

@@ -62,73 +62,64 @@ public sealed class RagQueryHandler
     }
 
     private static string BuildPrompt(
-        string question,
-        IReadOnlyList<
-            AegisRAG.Application.RAG.DTOs.SimilarChunkDto> chunks)
+    string question,
+    IReadOnlyList<
+        AegisRAG.Application.RAG.DTOs.SimilarChunkDto> chunks)
     {
         var context = new StringBuilder();
 
-        foreach (var chunk in chunks)
+        for (var i = 0; i < chunks.Count; i++)
         {
+            var chunk = chunks[i];
+
             context.AppendLine(
-                $"[Chunk {chunk.ChunkIndex}]");
+                $"[Source {i + 1}]");
+
+            context.AppendLine(
+                $"File: {chunk.FileName}");
+
+            if (chunk.PageNumber.HasValue)
+            {
+                context.AppendLine(
+                    $"Page: {chunk.PageNumber}");
+            }
+
+            context.AppendLine(
+                $"Similarity: {chunk.Similarity:F3}");
+
+            context.AppendLine(
+                "Content:");
 
             context.AppendLine(chunk.Content);
+
             context.AppendLine();
         }
 
         return $"""
-            You are a helpful AI assistant.
+        You are a helpful AI assistant.
 
-            Answer the user's question using only the
-            information provided in the context below.
+        Answer the user's question using only the
+        information provided in the sources below.
 
-            If the answer cannot be found in the context,
-            say that you don't have enough information.
+        Important rules:
+        - Do not use outside knowledge.
+        - If the answer cannot be found in the sources,
+          say that you don't have enough information.
+        - When making a factual claim, cite the relevant
+          source using [Source N].
+        - Do not invent source numbers.
 
-            Context:
-            {context}
+        Sources:
+        {context}
 
-            Question:
-            {question}
+        Question:
+        {question}
 
-            Answer:
-            """;
+        Answer:
+        """;
     }
 
-    // public async IAsyncEnumerable<string> StreamAsync(
-    // RagQuery query,
-    // [System.Runtime.CompilerServices.EnumeratorCancellation]
-    // CancellationToken cancellationToken = default)
-    // {
-    //     if (string.IsNullOrWhiteSpace(query.Question))
-    //         throw new ArgumentException(
-    //             "Question is required.");
 
-    //     if (query.TopK <= 0)
-    //         throw new ArgumentException(
-    //             "TopK must be greater than zero.");
-
-    //     var searchResult =
-    //         await _semanticSearchHandler.HandleAsync(
-    //             query.Question,
-    //             query.TopK,
-    //             cancellationToken);
-
-    //     var prompt = BuildPrompt(
-    //         query.Question,
-    //         searchResult.Chunks);
-
-    //     await foreach (var chunk in
-    //         _llmService.GenerateStreamingAsync(
-    //             prompt,
-    //             cancellationToken))
-    //     {
-    //         Console.WriteLine(
-    //     $"[RAG] Yielding chunk: '{chunk}'");
-    //         yield return chunk;
-    //     }
-    // }
     public async IAsyncEnumerable<string> StreamAsync(
     RagQuery query,
     [EnumeratorCancellation] CancellationToken cancellationToken = default)

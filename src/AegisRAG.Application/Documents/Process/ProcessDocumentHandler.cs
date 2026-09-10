@@ -11,11 +11,11 @@ public sealed class ProcessDocumentHandler
     private readonly IEmbeddingService _embeddingService;
 
     public ProcessDocumentHandler(
-    IDocumentRepository documentRepository,
-    IFileStorage fileStorage,
-    IDocumentTextExtractor textExtractor,
-    ITextChunker textChunker,
-    IEmbeddingService embeddingService)
+        IDocumentRepository documentRepository,
+        IFileStorage fileStorage,
+        IDocumentTextExtractor textExtractor,
+        ITextChunker textChunker,
+        IEmbeddingService embeddingService)
     {
         _documentRepository = documentRepository;
         _fileStorage = fileStorage;
@@ -36,50 +36,56 @@ public sealed class ProcessDocumentHandler
             throw new InvalidOperationException(
                 "Document not found.");
 
-        document.MarkAsProcessing();
+        try
+        {
+            document.MarkAsProcessing();
 
-        await using var stream =
-            await _fileStorage.OpenReadAsync(
-                document.StoragePath,
+            await _documentRepository.UpdateAsync(
+                document,
                 cancellationToken);
 
-        var pages = await _textExtractor.ExtractAsync(
-            stream,
-            document.ContentType,
-            cancellationToken);
-
-        var chunks = _textChunker.Chunk(pages);
-
-        Console.WriteLine($"Pages: {pages.Count}");
-        Console.WriteLine($"Chunks: {chunks.Count}");
-
-        foreach (var chunk in chunks)
-        {
-            Console.WriteLine(
-    $"Chunk {chunk.ChunkIndex}, Length: {chunk.Content.Length}");
-
-            var embedding =
-                await _embeddingService.GenerateEmbeddingAsync(
-                    chunk.Content,
+            await using var stream =
+                await _fileStorage.OpenReadAsync(
+                    document.StoragePath,
                     cancellationToken);
 
-            Console.WriteLine(
-$"Embedding dimensions: {embedding.Length}");
+            var pages = await _textExtractor.ExtractAsync(
+                stream,
+                document.ContentType,
+                cancellationToken);
 
-            document.AddChunk(
-                chunk.Content,
-                chunk.ChunkIndex,
-                chunk.PageNumber,
-                embedding);
+            var chunks = _textChunker.Chunk(pages);
 
-            Console.WriteLine(
-$"Document chunks: {document.Chunks.Count}");
+            foreach (var chunk in chunks)
+            {
+                var embedding =
+                    await _embeddingService.GenerateEmbeddingAsync(
+                        chunk.Content,
+                        cancellationToken);
+
+                document.AddChunk(
+                    chunk.Content,
+                    chunk.ChunkIndex,
+                    chunk.PageNumber,
+                    embedding);
+            }
+
+            document.MarkAsCompleted();
+
+            await _documentRepository.UpdateAsync(
+                document,
+                cancellationToken);
         }
+        catch (Exception ex)
+        {
+            document.MarkAsFailed(
+                ex.Message);
 
-        document.MarkAsCompleted();
+            await _documentRepository.UpdateAsync(
+                document,
+                cancellationToken);
 
-        await _documentRepository.UpdateAsync(
-            document,
-            cancellationToken);
+            throw;
+        }
     }
 }
