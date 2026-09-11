@@ -18,26 +18,30 @@ public sealed class EFVectorSearchRepository
     }
 
     public async Task<IReadOnlyList<SimilarChunkDto>> SearchAsync(
-        float[] embedding,
-        int topK,
-        CancellationToken cancellationToken = default)
+    float[] embedding,
+    int topK,
+    double minimumSimilarity = 0.40,
+    CancellationToken cancellationToken = default)
     {
         var queryVector = new Vector(embedding);
 
         var results = await _dbContext.DocumentChunks
             .Where(x => x.Embedding != null)
+            .Where(x =>
+                1 - x.Embedding!.CosineDistance(queryVector)
+                >= minimumSimilarity)
             .OrderBy(x =>
                 x.Embedding!.CosineDistance(queryVector))
             .Take(topK)
             .Select(x => new SimilarChunkDto(
-            x.Id,
-            x.DocumentId,
-            x.Document.FileName,
-            x.Content,
-            x.ChunkIndex,
-            x.PageNumber,
-            1 - x.Embedding!
-                .CosineDistance(queryVector)))
+                x.Id,
+                x.DocumentId,
+                x.Document.FileName,
+                x.Content,
+                x.ChunkIndex,
+                x.PageNumber,
+                1 - x.Embedding!
+                    .CosineDistance(queryVector)))
             .ToListAsync(cancellationToken);
 
         return results;

@@ -34,7 +34,16 @@ public sealed class RagQueryHandler
             await _semanticSearchHandler.HandleAsync(
                 query.Question,
                 query.TopK,
+                query.MinimumSimilarity,
                 cancellationToken);
+
+        if (searchResult.Chunks.Count == 0)
+        {
+            return new RagQueryResult(
+                query.Question,
+                "I don't have enough information to answer this question.",
+                []);
+        }
 
         var sources = searchResult.Chunks
             .Select(x => new RagSourceDto(
@@ -130,9 +139,17 @@ public sealed class RagQueryHandler
             await _semanticSearchHandler.HandleAsync(
                 query.Question,
                 query.TopK,
+                query.MinimumSimilarity,
                 cancellationToken);
 
+        if (searchResult.Chunks.Count == 0)
+        {
+            yield return
+                "I don't have enough information to answer this question.";
 
+            yield break;
+        }
+        
         var prompt = BuildPrompt(
             query.Question,
             searchResult.Chunks);

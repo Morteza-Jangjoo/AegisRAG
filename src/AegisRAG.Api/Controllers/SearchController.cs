@@ -17,13 +17,15 @@ public class SearchController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> Search(
-        [FromQuery] string query,
-        [FromQuery] int topK = 5,
-        CancellationToken cancellationToken = default)
+     [FromQuery] string query,
+     [FromQuery] int topK = 5,
+     [FromQuery] double minimumSimilarity = 0.40,
+     CancellationToken cancellationToken = default)
     {
         var result = await _handler.HandleAsync(
             query,
             topK,
+            minimumSimilarity,
             cancellationToken);
 
         return Ok(result);
