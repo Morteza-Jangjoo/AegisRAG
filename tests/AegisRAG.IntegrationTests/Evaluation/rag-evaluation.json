@@ -1,0 +1,255 @@
+[
+  {
+    "question": "How much revenue did STIHL generate in 2025?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": ["€5.48 billion", "revenue", "2025"]
+      }
+    ]
+  },
+  {
+    "question": "How many people did STIHL employ worldwide in 2025?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": ["20,246", "employees", "2025"]
+      }
+    ]
+  },
+  {
+    "question": "How much industrial output has Germany lost over the past eight years?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": ["15 percent", "industrial output", "eight years"]
+      }
+    ]
+  },
+  {
+    "question": "How many industrial jobs is Germany losing each month?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": ["15,000", "industrial jobs", "month"]
+      }
+    ]
+  },
+  {
+    "question": "What external factors are putting pressure on German companies?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": ["US tariffs", "China", "geopolitical tensions"]
+      }
+    ]
+  },
+  {
+    "question": "What domestic problems does Nikolas Stihl identify as holding German companies back?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": [
+          "overregulated economy",
+          "high energy costs",
+          "high labour costs",
+          "high taxes"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "What reforms does Stihl believe Germany needs?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": [
+          "cutting red tape",
+          "reducing labour costs",
+          "research and development"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "Why does Stihl believe Germans need to work more?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": [
+          "volume of work",
+          "economic output",
+          "prosperity"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "What weekly working hours does Stihl advocate for without pay compensation?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": [
+          "40",
+          "weekly working hours",
+          "without any pay compensation"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "What maximum percentage of gross wages does Stihl propose for non-wage labour costs?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": [
+          "40%",
+          "gross wages",
+          "non-wage labour costs"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "Which future technologies does Stihl believe should receive more targeted support?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": [
+          "artificial intelligence",
+          "robotics",
+          "biotechnology",
+          "space travel",
+          "quantum technologies"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "How many countries does STIHL have production companies in?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": [
+          "eight countries",
+          "production companies"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "What year was STIHL founded?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": [
+          "1926",
+          "Andreas Stihl",
+          "founded"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "What company has been the world's best-selling chainsaw brand since 1971?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": [
+          "STIHL",
+          "world's best-selling chainsaw brand",
+          "1971"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "How does Stihl suggest that public administration should be improved?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": [
+          "digital",
+          "AI",
+          "streamlined",
+          "swift procedures"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "What does Stihl say about sick pay?",
+    "relevant": true,
+    "expectedSources": [
+      {
+        "fileName": "TestFile.txt",
+        "pageNumber": 1,
+        "expectedTerms": [
+          "sick pay",
+          "second day",
+          "phone-in sick notes"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "How does Germany's space program launch spacecraft?",
+    "relevant": false,
+    "expectedSources": []
+  },
+  {
+    "question": "What is the capital of France?",
+    "relevant": false,
+    "expectedSources": []
+  },
+  {
+    "question": "How do neural networks train their weights?",
+    "relevant": false,
+    "expectedSources": []
+  },
+  {
+    "question": "What are the health benefits of regular exercise?",
+    "relevant": false,
+    "expectedSources": []
+  },
+  {
+    "question": "How does a diesel engine work?",
+    "relevant": false,
+    "expectedSources": []
+  },
+  {
+    "question": "What is the population of Germany?",
+    "relevant": false,
+    "expectedSources": []
+  }
+]

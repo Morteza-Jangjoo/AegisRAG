@@ -4,8 +4,22 @@ namespace AegisRAG.Infrastructure.Documents;
 
 public sealed class TextChunker : ITextChunker
 {
-    private const int ChunkSize = 1000;
-    private const int Overlap = 200;
+    private readonly int _chunkSize;
+    private readonly int _overlap;
+
+    public TextChunker(
+        int chunkSize = 1000,
+        int overlap = 200)
+    {
+        if (chunkSize <= 0)
+            throw new ArgumentOutOfRangeException(nameof(chunkSize));
+
+        if (overlap < 0 || overlap >= chunkSize)
+            throw new ArgumentOutOfRangeException(nameof(overlap));
+
+        _chunkSize = chunkSize;
+        _overlap = overlap;
+    }
 
     public IReadOnlyList<TextChunk> Chunk(
         IReadOnlyList<ExtractedPage> pages)
@@ -26,7 +40,7 @@ public sealed class TextChunker : ITextChunker
             while (start < text.Length)
             {
                 var length = Math.Min(
-                    ChunkSize,
+                    _chunkSize,
                     text.Length - start);
 
                 var chunkText = text.Substring(
@@ -42,7 +56,7 @@ public sealed class TextChunker : ITextChunker
                 if (start + length >= text.Length)
                     break;
 
-                start += ChunkSize - Overlap;
+                start += _chunkSize - _overlap;
             }
         }
 
