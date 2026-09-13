@@ -14,32 +14,15 @@ public class RagEvaluationRunner
 
     private const int TopK = 5;
 
-    // private static readonly double[] Thresholds =
-    // [
-    //     0.30,
-    //     0.35,
-    //     0.40,
-    //     0.45,
-    //     0.50,
-    //     0.55,
-    //     0.60,
-    //     0.65,
-    //     0.70,
-    //     0.75
-    // ];
     private static readonly double[] Thresholds =
     [
-        0.55,
-        0.56,
-        0.57,
-        0.58,
-        0.59,
-        0.60,
-        0.61,
-        0.62,
-        0.63,
-        0.64,
-        0.65
+        0.66,
+        0.67,
+        0.68,
+        0.69,
+        0.70,
+        0.71,
+        0.72
     ];
 
     [Fact]
