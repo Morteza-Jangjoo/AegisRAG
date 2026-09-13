@@ -8,8 +8,8 @@ public sealed class TextChunker : ITextChunker
     private readonly int _overlap;
 
     public TextChunker(
-        int chunkSize = 1000,
-        int overlap = 200)
+        int chunkSize = 700,
+        int overlap = 150)
     {
         if (chunkSize <= 0)
             throw new ArgumentOutOfRangeException(nameof(chunkSize));
