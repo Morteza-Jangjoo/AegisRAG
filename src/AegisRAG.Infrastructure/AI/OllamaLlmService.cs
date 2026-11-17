@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Http.Json;
 using AegisRAG.Application.Abstractions;
 using Microsoft.Extensions.Options;
@@ -23,31 +24,45 @@ public sealed class OllamaLlmService : ILlmService
         string prompt,
         CancellationToken cancellationToken = default)
     {
-        var request = new
+        using var activity = AegisRagActivitySource.Source.StartActivity("RAG.LLM");
+
+        try
         {
-            model = _options.LlmModel,
-            prompt,
-            stream = false
-        };
+            activity?.SetTag("RAG.Model", _options.LlmModel);
 
-        var response = await _httpClient.PostAsJsonAsync(
-            "/api/generate",
-            request,
-            cancellationToken);
+            var request = new
+            {
+                model = _options.LlmModel,
+                prompt,
+                stream = false
+            };
 
-        response.EnsureSuccessStatusCode();
-
-        var result =
-            await response.Content.ReadFromJsonAsync<OllamaGenerateResponse>(
+            var response = await _httpClient.PostAsJsonAsync(
+                "/api/generate",
+                request,
                 cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(result?.Response))
-        {
-            throw new InvalidOperationException(
-                "Ollama returned an empty response.");
-        }
+            response.EnsureSuccessStatusCode();
 
-        return result.Response;
+            var result =
+                await response.Content.ReadFromJsonAsync<OllamaGenerateResponse>(
+                    cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(result?.Response))
+            {
+                throw new InvalidOperationException(
+                    "Ollama returned an empty response.");
+            }
+
+            return result.Response;
+        }
+        catch (Exception ex)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            activity?.SetTag("exception.type", ex.GetType().FullName);
+            activity?.SetTag("exception.message", ex.Message);
+            throw;
+        }
     }
 
     public async IAsyncEnumerable<string> GenerateStreamingAsync(
@@ -55,6 +70,10 @@ public sealed class OllamaLlmService : ILlmService
     [System.Runtime.CompilerServices.EnumeratorCancellation]
     CancellationToken cancellationToken = default)
     {
+        using var activity = AegisRagActivitySource.Source.StartActivity("RAG.LLM");
+
+        activity?.SetTag("RAG.Model", _options.LlmModel);
+
         var request = new
         {
             model = _options.LlmModel,

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Http.Json;
 using AegisRAG.Application.Abstractions;
 using Microsoft.Extensions.Options;
@@ -22,31 +23,45 @@ public sealed class OllamaEmbeddingService
         string text,
         CancellationToken cancellationToken = default)
     {
-        var request = new
+        using var activity = AegisRagActivitySource.Source.StartActivity("RAG.Embedding");
+
+        try
         {
-            model = _options.EmbeddingModel,
-            input = text
-        };
+            activity?.SetTag("RAG.Model", _options.EmbeddingModel);
 
-        var response = await _httpClient.PostAsJsonAsync(
-            "/api/embed",
-            request,
-            cancellationToken);
+            var request = new
+            {
+                model = _options.EmbeddingModel,
+                input = text
+            };
 
-        response.EnsureSuccessStatusCode();
-
-        var result =
-            await response.Content.ReadFromJsonAsync<OllamaEmbeddingResponse>(
+            var response = await _httpClient.PostAsJsonAsync(
+                "/api/embed",
+                request,
                 cancellationToken);
 
-        if (result?.Embeddings is null ||
-            result.Embeddings.Length == 0)
-        {
-            throw new InvalidOperationException(
-                "Ollama returned an empty embedding.");
-        }
+            response.EnsureSuccessStatusCode();
 
-        return result.Embeddings[0];
+            var result =
+                await response.Content.ReadFromJsonAsync<OllamaEmbeddingResponse>(
+                    cancellationToken);
+
+            if (result?.Embeddings is null ||
+                result.Embeddings.Length == 0)
+            {
+                throw new InvalidOperationException(
+                    "Ollama returned an empty embedding.");
+            }
+
+            return result.Embeddings[0];
+        }
+        catch (Exception ex)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            activity?.SetTag("exception.type", ex.GetType().FullName);
+            activity?.SetTag("exception.message", ex.Message);
+            throw;
+        }
     }
 
     private sealed record OllamaEmbeddingResponse(
