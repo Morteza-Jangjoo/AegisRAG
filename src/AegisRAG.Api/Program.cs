@@ -1,7 +1,27 @@
 using AegisRAG.Application;
 using AegisRAG.Infrastructure;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var otlpEndpoint = builder.Configuration["OpenTelemetry:Otlp:Endpoint"];
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService(serviceName: builder.Environment.ApplicationName))
+    .WithTracing(tracing =>
+    {
+        tracing.AddAspNetCoreInstrumentation();
+        tracing.AddHttpClientInstrumentation();
+        tracing.AddOtlpExporter(options =>
+        {
+            options.Endpoint = new Uri(
+                !string.IsNullOrWhiteSpace(otlpEndpoint)
+                    ? otlpEndpoint
+                    : "http://localhost:4317");
+        });
+    });
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -34,8 +54,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-
 
 app.Run();
 

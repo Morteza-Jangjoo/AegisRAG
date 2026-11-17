@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AegisRAG.Application.Abstractions;
@@ -22,52 +23,91 @@ public sealed class RagQueryHandler
         RagQuery query,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(query.Question))
-            throw new ArgumentException(
-                "Question is required.");
+        using var activity = AegisRagActivitySource.Source.StartActivity("RAG.Query");
 
-        if (query.TopK <= 0)
-            throw new ArgumentException(
-                "TopK must be greater than zero.");
-
-        var searchResult =
-            await _semanticSearchHandler.HandleAsync(
-                query.Question,
-                query.TopK,
-                query.MinimumSimilarity,
-                cancellationToken);
-
-        if (searchResult.Chunks.Count == 0)
+        if (activity is not null)
         {
-            return new RagQueryResult(
-                query.Question,
-                "I don't have enough information to answer this question.",
-                []);
+            activity.SetTag("RAG.TopK", query.TopK);
+            activity.SetTag("RAG.MinimumSimilarity", query.MinimumSimilarity);
         }
 
-        var sources = searchResult.Chunks
-            .Select(x => new RagSourceDto(
-                x.DocumentId,
-                x.FileName,
-                x.ChunkId,
-                x.ChunkIndex,
-                x.PageNumber,
-                x.Similarity))
-            .ToList();
+        try
+        {
+            if (string.IsNullOrWhiteSpace(query.Question))
+                throw new ArgumentException(
+                    "Question is required.");
 
-        var prompt = BuildPrompt(
-            query.Question,
-            searchResult.Chunks);
+            if (query.TopK <= 0)
+                throw new ArgumentException(
+                    "TopK must be greater than zero.");
 
-        var answer =
-            await _llmService.GenerateAsync(
-                prompt,
-                cancellationToken);
+            var searchResult =
+                await _semanticSearchHandler.HandleAsync(
+                    query.Question,
+                    query.TopK,
+                    query.MinimumSimilarity,
+                    cancellationToken);
 
-        return new RagQueryResult(
-            query.Question,
-            answer,
-            sources);
+            if (activity is not null)
+            {
+                activity.SetTag("RAG.ResultCount", searchResult.Chunks.Count);
+            }
+
+            if (searchResult.Chunks.Count == 0)
+            {
+                return new RagQueryResult(
+                    query.Question,
+                    "I don't have enough information to answer this question.",
+                    []);
+            }
+
+            var sources = searchResult.Chunks
+                .Select(x => new RagSourceDto(
+                    x.DocumentId,
+                    x.FileName,
+                    x.ChunkId,
+                    x.ChunkIndex,
+                    x.PageNumber,
+                    x.Similarity))
+                .ToList();
+
+            var prompt = BuildPrompt(
+                query.Question,
+                searchResult.Chunks);
+
+            using (var llmActivity = AegisRagActivitySource.Source.StartActivity("RAG.LLM"))
+            {
+                try
+                {
+                    var answer =
+                        await _llmService.GenerateAsync(
+                            prompt,
+                            cancellationToken);
+
+                    llmActivity?.SetTag("RAG.Model", "llm");
+                    llmActivity?.SetTag("RAG.ResultCount", 1);
+
+                    return new RagQueryResult(
+                        query.Question,
+                        answer,
+                        sources);
+                }
+                catch (Exception ex)
+                {
+                    llmActivity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    llmActivity?.SetTag("exception.type", ex.GetType().FullName);
+                    llmActivity?.SetTag("exception.message", ex.Message);
+                    throw;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            activity?.SetTag("exception.type", ex.GetType().FullName);
+            activity?.SetTag("exception.message", ex.Message);
+            throw;
+        }
     }
 
     private static string BuildPrompt(
@@ -133,6 +173,14 @@ public sealed class RagQueryHandler
     RagQuery query,
     [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
+        using var activity = AegisRagActivitySource.Source.StartActivity("RAG.Query");
+
+        if (activity is not null)
+        {
+            activity.SetTag("RAG.TopK", query.TopK);
+            activity.SetTag("RAG.MinimumSimilarity", query.MinimumSimilarity);
+        }
+
         Console.WriteLine("[RAG] StreamAsync started.");
 
         var searchResult =
@@ -141,6 +189,11 @@ public sealed class RagQueryHandler
                 query.TopK,
                 query.MinimumSimilarity,
                 cancellationToken);
+
+        if (activity is not null)
+        {
+            activity.SetTag("RAG.ResultCount", searchResult.Chunks.Count);
+        }
 
         if (searchResult.Chunks.Count == 0)
         {
@@ -156,18 +209,23 @@ public sealed class RagQueryHandler
 
         Console.WriteLine("[RAG] Before LLM streaming.");
 
-        await foreach (var chunk in
-            _llmService.GenerateStreamingAsync(
-                prompt,
-                cancellationToken))
+        using (var llmActivity = AegisRagActivitySource.Source.StartActivity("RAG.LLM"))
         {
-            Console.WriteLine(
-        $"[RAG] Yielding chunk: '{chunk}'");
+            llmActivity?.SetTag("RAG.Model", "llm");
 
-            yield return chunk;
+            await foreach (var chunk in
+                _llmService.GenerateStreamingAsync(
+                    prompt,
+                    cancellationToken))
+            {
+                Console.WriteLine(
+            $"[RAG] Yielding chunk: '{chunk}'");
 
-            Console.WriteLine(
-        $"[RAG] Chunk returned to caller: '{chunk}'");
+                yield return chunk;
+
+                Console.WriteLine(
+            $"[RAG] Chunk returned to caller: '{chunk}'");
+            }
         }
 
         Console.WriteLine("[RAG] StreamAsync completed.");

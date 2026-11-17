@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AegisRAG.Application.Abstractions;
 
 namespace AegisRAG.Application.RAG.Search;
@@ -40,17 +41,50 @@ public sealed class SemanticSearchHandler
                 "MinimumSimilarity must be between 0 and 1.");
         }
 
-        var embedding =
-            await _embeddingService.GenerateEmbeddingAsync(
-                query,
-                cancellationToken);
+        float[] embedding;
+        using (var embeddingActivity = AegisRagActivitySource.Source.StartActivity("RAG.Embedding"))
+        {
+            try
+            {
+                embeddingActivity?.SetTag("RAG.Model", "embedding");
 
-        var chunks =
-            await _vectorSearchRepository.SearchAsync(
-                embedding,
-                topK,
-                minimumSimilarity,
-                cancellationToken);
+                embedding = await _embeddingService.GenerateEmbeddingAsync(
+                    query,
+                    cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                embeddingActivity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                embeddingActivity?.SetTag("exception.type", ex.GetType().FullName);
+                embeddingActivity?.SetTag("exception.message", ex.Message);
+                throw;
+            }
+        }
+
+        IReadOnlyList<AegisRAG.Application.RAG.DTOs.SimilarChunkDto> chunks;
+        using (var searchActivity = AegisRagActivitySource.Source.StartActivity("RAG.VectorSearch"))
+        {
+            try
+            {
+                searchActivity?.SetTag("RAG.TopK", topK);
+                searchActivity?.SetTag("RAG.MinimumSimilarity", minimumSimilarity);
+
+                chunks = await _vectorSearchRepository.SearchAsync(
+                    embedding,
+                    topK,
+                    minimumSimilarity,
+                    cancellationToken);
+
+                searchActivity?.SetTag("RAG.ResultCount", chunks.Count);
+            }
+            catch (Exception ex)
+            {
+                searchActivity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                searchActivity?.SetTag("exception.type", ex.GetType().FullName);
+                searchActivity?.SetTag("exception.message", ex.Message);
+                throw;
+            }
+        }
 
         return new SemanticSearchResult(
             query,
